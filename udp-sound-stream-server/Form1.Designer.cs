@@ -73,13 +73,13 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(238, 248);
+            this.ClientSize = new System.Drawing.Size(232, 96);
             this.Controls.Add(this.lblIPAdressValue);
             this.Controls.Add(this.lblIPAdress);
             this.Controls.Add(this.lblStatusValue);
             this.Controls.Add(this.lblStatus);
             this.Name = "Form1";
-            this.Text = "Form1";
+            this.Text = "UDP Sound Stream Server";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.ResumeLayout(false);
             this.PerformLayout();

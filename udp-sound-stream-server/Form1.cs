@@ -40,13 +40,13 @@ namespace udp_sound_stream_server
                 data = UDP.EndReceive(ar, ref clientEndPoint);
 
                 if (data.Length == 0)
-                    return; // No more to receive
+                    return;
 
                 //MessageBox.Show(Encoding.UTF8.GetString(data, 0, data.Length));
             }
             catch (ObjectDisposedException)
             {
-                return; // Connection closed
+                return;
             }
 
             // Send the data to the UI thread
