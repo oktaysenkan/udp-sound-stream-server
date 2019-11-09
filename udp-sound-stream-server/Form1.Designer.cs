@@ -37,7 +37,7 @@
             // lblStatus
             // 
             this.lblStatus.AutoSize = true;
-            this.lblStatus.Location = new System.Drawing.Point(12, 30);
+            this.lblStatus.Location = new System.Drawing.Point(12, 20);
             this.lblStatus.Name = "lblStatus";
             this.lblStatus.Size = new System.Drawing.Size(40, 13);
             this.lblStatus.TabIndex = 0;
@@ -46,7 +46,7 @@
             // lblStatusValue
             // 
             this.lblStatusValue.AutoSize = true;
-            this.lblStatusValue.Location = new System.Drawing.Point(74, 30);
+            this.lblStatusValue.Location = new System.Drawing.Point(74, 20);
             this.lblStatusValue.Name = "lblStatusValue";
             this.lblStatusValue.Size = new System.Drawing.Size(71, 13);
             this.lblStatusValue.TabIndex = 1;
@@ -55,7 +55,7 @@
             // lblIPAdress
             // 
             this.lblIPAdress.AutoSize = true;
-            this.lblIPAdress.Location = new System.Drawing.Point(12, 52);
+            this.lblIPAdress.Location = new System.Drawing.Point(12, 42);
             this.lblIPAdress.Name = "lblIPAdress";
             this.lblIPAdress.Size = new System.Drawing.Size(20, 13);
             this.lblIPAdress.TabIndex = 2;
@@ -64,7 +64,7 @@
             // lblIPAdressValue
             // 
             this.lblIPAdressValue.AutoSize = true;
-            this.lblIPAdressValue.Location = new System.Drawing.Point(74, 52);
+            this.lblIPAdressValue.Location = new System.Drawing.Point(74, 42);
             this.lblIPAdressValue.Name = "lblIPAdressValue";
             this.lblIPAdressValue.Size = new System.Drawing.Size(0, 13);
             this.lblIPAdressValue.TabIndex = 3;
@@ -73,7 +73,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(232, 96);
+            this.ClientSize = new System.Drawing.Size(232, 77);
             this.Controls.Add(this.lblIPAdressValue);
             this.Controls.Add(this.lblIPAdress);
             this.Controls.Add(this.lblStatusValue);

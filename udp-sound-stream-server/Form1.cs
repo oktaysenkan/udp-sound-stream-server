@@ -28,36 +28,21 @@ namespace udp_sound_stream_server
         {
             InitializeComponent();
 
+            string ipAddresses = string.Join("\n", IPAddressManager.GetLocalIPAddress());
+            lblIPAdressValue.Text = ipAddresses;
+
             UDP = new UdpClient(serverEndPoint);
-            UDP.BeginReceive(DataReceived, null);
+            UDP.BeginReceive(FirstDataReceived, null);
         }
 
-        private void DataReceived(IAsyncResult ar)
+        private void FirstDataReceived(IAsyncResult ar)
         {
-            byte[] data;
-            try
-            {
-                data = UDP.EndReceive(ar, ref clientEndPoint);
+            var data = UDP.EndReceive(ar, ref clientEndPoint);
 
-                if (data.Length == 0)
-                    return;
-
-                //MessageBox.Show(Encoding.UTF8.GetString(data, 0, data.Length));
-            }
-            catch (ObjectDisposedException)
-            {
+            if (data.Length == 0)
                 return;
-            }
 
-            // Send the data to the UI thread
-            this.BeginInvoke((Action<IPEndPoint, string>)DataReceivedUI, clientEndPoint, Encoding.UTF8.GetString(data));
             StartAudioStreaming();
-        }
-
-        private void DataReceivedUI(IPEndPoint endPoint, string data)
-        {
-            lblStatusValue.Text = "Connected";
-            lblIPAdressValue.Text = endPoint.ToString();
         }
 
         private void StartAudioStreaming()
@@ -67,30 +52,19 @@ namespace udp_sound_stream_server
 
             SoundInSource soundInSource = new SoundInSource(soundIn) { FillWithZeros = false };
             IWaveSource convertedSource = soundInSource
-                .ChangeSampleRate(44100) // sample rate
+                .ChangeSampleRate(44100)
                 .ToSampleSource()
-                .ToWaveSource(16); //bits per sample
-            convertedSource = convertedSource.ToStereo();
-
-            WaveWriter waveWriter = new WaveWriter("dump.wav", convertedSource.WaveFormat);
+                .ToWaveSource(16)
+                .ToStereo(); 
 
             soundInSource.DataAvailable += (s, e) =>
             {
-                //read data from the converedSource
-                //important: don't use the e.Data here
-                //the e.Data contains the raw data provided by the 
-                //soundInSource which won't have your target format
                 byte[] buffer = new byte[convertedSource.WaveFormat.BytesPerSecond / 2];
-                int read;
+                int bytes;
 
-                //keep reading as long as we still get some data
-                //if you're using such a loop, make sure that soundInSource.FillWithZeros is set to false
-                while ((read = convertedSource.Read(buffer, 0, buffer.Length)) > 0)
+                while ((bytes = convertedSource.Read(buffer, 0, buffer.Length)) > 0)
                 {
-                    //write the read data to a file
-                    // ReSharper disable once AccessToDisposedClosure
-                    //waveWriter.Write(buffer, 0, read);
-                    UDP.Send(buffer, read, clientEndPoint);
+                    UDP.Send(buffer, bytes, clientEndPoint);
                 }
             };
 
@@ -99,8 +73,7 @@ namespace udp_sound_stream_server
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (soundIn != null)
-                soundIn.Stop();
+            soundIn?.Stop();
         }
     }
 }
