@@ -22,8 +22,6 @@ namespace udp_sound_stream_server
         IPEndPoint serverEndPoint = new IPEndPoint(IPAddress.Any, 9050);
         IPEndPoint clientEndPoint = new IPEndPoint(IPAddress.Any, 0);
 
-        private WasapiCapture soundIn;
-
         public Form1()
         {
             InitializeComponent();
@@ -47,33 +45,13 @@ namespace udp_sound_stream_server
 
         private void StartAudioStreaming()
         {
-            soundIn = new WasapiLoopbackCapture();
-            soundIn.Initialize();
-
-            SoundInSource soundInSource = new SoundInSource(soundIn) { FillWithZeros = false };
-            IWaveSource convertedSource = soundInSource
-                .ChangeSampleRate(44100)
-                .ToSampleSource()
-                .ToWaveSource(16)
-                .ToStereo(); 
-
-            soundInSource.DataAvailable += (s, e) =>
-            {
-                byte[] buffer = new byte[convertedSource.WaveFormat.BytesPerSecond / 2];
-                int bytes;
-
-                while ((bytes = convertedSource.Read(buffer, 0, buffer.Length)) > 0)
-                {
-                    UDP.Send(buffer, bytes, clientEndPoint);
-                }
-            };
-
-            soundIn.Start();
+            SoundRecorder soundRecorder = new SoundRecorder();
+            soundRecorder.SoundCaptured += (buffer, bytes) => { UDP.Send(buffer, bytes, clientEndPoint); };
+            soundRecorder.Start();
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            soundIn?.Stop();
         }
     }
 }

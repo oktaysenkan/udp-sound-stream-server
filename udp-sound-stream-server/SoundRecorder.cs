@@ -15,7 +15,7 @@ namespace udp_sound_stream_server
         private int _sampleRate;
         private int _bitPerSecond;
 
-        public delegate void SoundCapturedEventHandler(byte[] buffer, int read);
+        public delegate void SoundCapturedEventHandler(byte[] buffer, int bytes);
         public event SoundCapturedEventHandler SoundCaptured;
 
         public SoundRecorder(int sampleRate = 44100, int bitsPerSecond = 16)
@@ -35,23 +35,32 @@ namespace udp_sound_stream_server
             soundInSource.DataAvailable += (s, e) =>
             {
                 byte[] buffer = new byte[convertedSource.WaveFormat.BytesPerSecond / 2];
-                int read;
+                int bytes;
 
-                while ((read = convertedSource.Read(buffer, 0, buffer.Length)) > 0)
+                while ((bytes = convertedSource.Read(buffer, 0, buffer.Length)) > 0)
                 {
-                    SoundCaptured(buffer, read);
-                    //_udpClient.Send(buffer, read, _clientEndPoint);
+                    if (SoundCaptured == null)
+                        throw new Exception("Sound capture event not implemented");
+
+                    SoundCaptured(buffer, bytes);
                 }
             };
 
         }
 
+        ~SoundRecorder()
+        {
+            Stop();
+        }
+
         public void Start()
         {
-            if (SoundCaptured == null)
-                throw new Exception("Sound capture event not implemented");
-
             _soundIn.Start();
+        }
+
+        public void Stop()
+        {
+            _soundIn?.Stop();
         }
     }
 }
