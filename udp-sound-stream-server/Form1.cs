@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Net;
@@ -18,9 +19,10 @@ namespace udp_sound_stream_server
 {
     public partial class Form1 : Form
     {
-        UdpClient UDP;
-        IPEndPoint serverEndPoint = new IPEndPoint(IPAddress.Any, 9050);
-        IPEndPoint clientEndPoint = new IPEndPoint(IPAddress.Any, 0);
+        private UdpClient _udp;
+        private IPEndPoint _serverEndPoint = new IPEndPoint(IPAddress.Any, 9050);
+        private IPEndPoint _clientEndPoint = new IPEndPoint(IPAddress.Any, 0);
+        private SoundRecorder _soundRecorder = new SoundRecorder();
 
         public Form1()
         {
@@ -29,29 +31,35 @@ namespace udp_sound_stream_server
             string ipAddresses = string.Join("\n", IPAddressManager.GetLocalIPAddress());
             lblIPAdressValue.Text = ipAddresses;
 
-            UDP = new UdpClient(serverEndPoint);
-            UDP.BeginReceive(FirstDataReceived, null);
+            _udp = new UdpClient(_serverEndPoint);
+            _udp.BeginReceive(FirstDataReceived, null);
         }
 
         private void FirstDataReceived(IAsyncResult ar)
         {
-            var data = UDP.EndReceive(ar, ref clientEndPoint);
+            var data = _udp.EndReceive(ar, ref _clientEndPoint);
+            _udp.BeginReceive(DataRecevied, null);
 
             if (data.Length == 0)
                 return;
 
-            StartAudioStreaming();
+            _soundRecorder.SoundCaptured += (buffer, bytes) =>
+            {
+                _udp.Send(buffer, bytes, _clientEndPoint);
+            };
+            _soundRecorder.Start();
         }
 
-        private void StartAudioStreaming()
+        private void DataRecevied(IAsyncResult ar)
         {
-            SoundRecorder soundRecorder = new SoundRecorder();
-            soundRecorder.SoundCaptured += (buffer, bytes) => { UDP.Send(buffer, bytes, clientEndPoint); };
-            soundRecorder.Start();
+            var data = _udp.EndReceive(ar, ref _clientEndPoint);
+            _udp.BeginReceive(DataRecevied, null);
+
+            if (data.Length == 0)
+                return;
+
+            RequestHandler requestHandler = new RequestHandler(data);
         }
 
-        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
-        {
-        }
     }
 }

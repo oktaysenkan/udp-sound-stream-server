@@ -40,7 +40,7 @@ namespace udp_sound_stream_server
                 while ((bytes = convertedSource.Read(buffer, 0, buffer.Length)) > 0)
                 {
                     if (SoundCaptured == null)
-                        throw new Exception("Sound capture event not implemented");
+                        throw new Exception("SoundCapturedEventHandler not implemented");
 
                     SoundCaptured(buffer, bytes);
                 }
