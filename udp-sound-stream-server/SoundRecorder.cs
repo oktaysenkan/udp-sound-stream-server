@@ -18,7 +18,12 @@ namespace udp_sound_stream_server
         public delegate void SoundCapturedEventHandler(byte[] buffer, int bytes);
         public event SoundCapturedEventHandler SoundCaptured;
 
-        public SoundRecorder(int sampleRate = 44100, int bitsPerSecond = 16)
+        ~SoundRecorder()
+        {
+            Stop();
+        }
+
+        public SoundRecorder (int sampleRate = 44100, int bitsPerSecond = 16)
         {
             _soundIn = new WasapiLoopbackCapture();
             _soundIn.Initialize();
@@ -45,26 +50,21 @@ namespace udp_sound_stream_server
                     SoundCaptured(buffer, bytes);
                 }
             };
-
-        }
-
-        ~SoundRecorder()
-        {
-            Stop();
         }
 
         public void Start()
         {
-            _soundIn.Start();
+            if (_soundIn.RecordingState == RecordingState.Stopped)
+            {
+                _soundIn.Start();
+            }
         }
 
         public void Stop()
         {
-            if (_soundIn.RecordingState == RecordingState.Recording)
-            {
-                _soundIn?.Stop();
-                SoundCaptured = null;
-            }
+            _soundIn?.Stop();
+            _soundIn?.Dispose();
+            SoundCaptured = null;
         }
     }
 }

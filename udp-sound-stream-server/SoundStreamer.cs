@@ -46,9 +46,12 @@ namespace udp_sound_stream_server
 
         private void SoundRecorderStart(int sampleRate = 44100, int bitsPerSecond = 16)
         {
-            _soundRecorder = new SoundRecorder(sampleRate, bitsPerSecond);
-            _soundRecorder.SoundCaptured += SoundCaptured;
-            _soundRecorder.Start();
+            if (_soundRecorder == null)
+            {
+                _soundRecorder = new SoundRecorder(sampleRate, bitsPerSecond);
+                _soundRecorder.SoundCaptured += SoundCaptured;
+                _soundRecorder.Start();
+            }
         }
 
         private void SoundRecorderStop()
