@@ -4,14 +4,14 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace udp_sound_stream_server
 {
     class RequestHandler
     {
         public string Request { get; }
-        public bool StartStream { get; set; }
-        public bool PauseStream { get; }
+        public bool StartStream { get; }
         public bool StopStream { get; }
         public bool ChangeAudioQuality { get; }
         public int BitPerSecond { get; }
@@ -21,12 +21,11 @@ namespace udp_sound_stream_server
         {
             Request = Encoding.UTF8.GetString(buffer);
 
-            StartStream = GetValueOfParameter("StartStream", new bool());
-            PauseStream = GetValueOfParameter("PauseStream", new bool());
-            StopStream = GetValueOfParameter("StopStream", new bool());
-            ChangeAudioQuality = GetValueOfParameter("ChangeAudioQuality", new bool());
-            BitPerSecond = GetValueOfParameter("BitPerSecond", new int());
-            SampleRate = GetValueOfParameter("SampleRate", new int());
+            StartStream = GetValueOfParameter("StartStream", StartStream);
+            StopStream = GetValueOfParameter("StopStream", StopStream);
+            ChangeAudioQuality = GetValueOfParameter("ChangeAudioQuality", ChangeAudioQuality);
+            BitPerSecond = GetValueOfParameter("BitPerSecond", BitPerSecond);
+            SampleRate = GetValueOfParameter("SampleRate", SampleRate);
         }
 
         private T GetValueOfParameter<T>(string requestParamater, T type)
@@ -35,9 +34,9 @@ namespace udp_sound_stream_server
             if (startIndex < 0)
                 return default(T);
 
-            var equalsIndex = startIndex + requestParamater.Length;
-            var commaIndex = Request.IndexOf(",", equalsIndex, StringComparison.Ordinal);
-            var value = Request.Substring(equalsIndex + 1, commaIndex - equalsIndex - 1);
+            var colonSignIndex = startIndex + requestParamater.Length;
+            var newLineIndex = Request.IndexOf("\n", colonSignIndex, StringComparison.Ordinal);
+            var value = Request.Substring(colonSignIndex + 2, newLineIndex - colonSignIndex - 2);
 
             if (type is bool)
                 return (T)(object)Convert.ToBoolean(value);

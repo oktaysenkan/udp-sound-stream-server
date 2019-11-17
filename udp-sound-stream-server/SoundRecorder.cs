@@ -60,7 +60,10 @@ namespace udp_sound_stream_server
 
         public void Stop()
         {
-            _soundIn?.Stop();
+            if (_soundIn.RecordingState == RecordingState.Recording)
+            {
+                _soundIn?.Stop();
+            }
         }
     }
 }
