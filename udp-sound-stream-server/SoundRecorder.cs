@@ -12,37 +12,36 @@ namespace udp_sound_stream_server
     class SoundRecorder
     {
         private WasapiLoopbackCapture _soundIn;
-        private int _sampleRate;
-        private int _bitPerSecond;
+        private IWaveSource _targetSoundSource;
+        private SoundInSource _defaultSoundSource;
+
+        public int SampleRate { get; private set; }
+        public int BitPerSecond { get; private set; }
+
+        public bool IsRecording => _soundIn?.RecordingState == RecordingState.Recording;
 
         public delegate void SoundCapturedEventHandler(byte[] buffer, int bytes);
         public event SoundCapturedEventHandler SoundCaptured;
 
-        ~SoundRecorder()
-        {
-            Stop();
-        }
-
         public SoundRecorder (int sampleRate = 44100, int bitsPerSecond = 16)
         {
+            SampleRate = sampleRate;
+            BitPerSecond = bitsPerSecond;
+
             _soundIn = new WasapiLoopbackCapture();
             _soundIn.Initialize();
-            _sampleRate = sampleRate;
-            _bitPerSecond = bitsPerSecond;
+            SampleRate = sampleRate;
+            BitPerSecond = bitsPerSecond;
 
-            SoundInSource soundInSource = new SoundInSource(_soundIn) { FillWithZeros = false };
-            IWaveSource convertedSource = soundInSource
-                .ChangeSampleRate(sampleRate)
-                .ToSampleSource()
-                .ToStereo()
-                .ToWaveSource(bitsPerSecond);
+            _defaultSoundSource = new SoundInSource(_soundIn) { FillWithZeros = false };
+            ChangeQuality(SampleRate, BitPerSecond);
 
-            soundInSource.DataAvailable += (s, e) =>
+            _defaultSoundSource.DataAvailable += (s, e) =>
             {
-                byte[] buffer = new byte[convertedSource.WaveFormat.BytesPerSecond / 2];
+                byte[] buffer = new byte[_targetSoundSource.WaveFormat.BytesPerSecond / 2];
                 int bytes;
 
-                while ((bytes = convertedSource.Read(buffer, 0, buffer.Length)) > 0)
+                while ((bytes = _targetSoundSource.Read(buffer, 0, buffer.Length)) > 0)
                 {
                     if (SoundCaptured == null)
                         throw new Exception("SoundCapturedEventHandler not implemented");
@@ -52,19 +51,35 @@ namespace udp_sound_stream_server
             };
         }
 
+        ~SoundRecorder()
+        {
+            Stop();
+        }
+
         public void Start()
         {
-            if (_soundIn.RecordingState == RecordingState.Stopped)
-            {
+            if (IsRecording)
                 _soundIn.Start();
-            }
         }
 
         public void Stop()
         {
             _soundIn?.Stop();
-            _soundIn?.Dispose();
-            SoundCaptured = null;
         }
+
+        public void ChangeQuality(int sampleRate, int bitsPerSecond)
+        {
+            SampleRate = sampleRate;
+            BitPerSecond = bitsPerSecond;
+
+            _soundIn.Stop();
+            _targetSoundSource = _defaultSoundSource
+                .ChangeSampleRate(SampleRate)
+                .ToSampleSource()
+                .ToStereo()
+                .ToWaveSource(BitPerSecond);
+            _soundIn.Start();
+        }
+
     }
 }

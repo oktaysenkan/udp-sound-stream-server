@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using CSCore;
 
 namespace udp_sound_stream_server
 {
@@ -29,13 +30,9 @@ namespace udp_sound_stream_server
             Request request = new Request(bufferReceive);
             RequestHandler requestHandler = new RequestHandler(request);
 
-            requestHandler.StreamStarted += SoundRecorderStart;
-            requestHandler.StreamStopped += SoundRecorderStop;
-            requestHandler.AudioQualityChanged += (sampleRate, bitsPerSecond) =>
-            {
-                SoundRecorderStop();
-                SoundRecorderStart(sampleRate, bitsPerSecond);
-            };
+            requestHandler.StreamStarted += StreamStarted;
+            requestHandler.StreamStopped += StreamStopped;
+            requestHandler.AudioQualityChanged += AudioQualityChanged;
             requestHandler.Start();
         }
 
@@ -44,19 +41,26 @@ namespace udp_sound_stream_server
             _streamServer.Send(buffer, bytes, _clientEndPoint);
         }
 
-        private void SoundRecorderStart(int sampleRate = 44100, int bitsPerSecond = 16)
+        private void StreamStarted(int sampleRate = 44100, int bitsPerSecond = 16)
         {
             if (_soundRecorder == null)
             {
                 _soundRecorder = new SoundRecorder(sampleRate, bitsPerSecond);
                 _soundRecorder.SoundCaptured += SoundCaptured;
-                _soundRecorder.Start();
             }
+
+            _soundRecorder.Start();
         }
 
-        private void SoundRecorderStop()
+        private void StreamStopped()
         {
-            _soundRecorder.Stop();
+            _soundRecorder?.Stop();
         }
+
+        private void AudioQualityChanged(int sampleRate, int bitsPerSecond)
+        {
+            _soundRecorder.ChangeQuality(sampleRate, bitsPerSecond);
+        }
+
     }
 }
