@@ -36,7 +36,15 @@ namespace udp_sound_stream_server
 
             var colonSignIndex = startIndex + requestParamater.Length;
             var newLineIndex = Body.IndexOf("\n", colonSignIndex, StringComparison.Ordinal);
-            var value = Body.Substring(colonSignIndex + 2, newLineIndex - colonSignIndex - 2);
+
+            /*
+            * Eğer aranan parametreden sonra satır devam ediyorsa "\n" işaretine kadar,
+            * eğer yeni satır bulunmuyorsa request bodysinin sonuna kadar substring yapıyor.
+            */
+
+            var value = newLineIndex > 0 ?
+                Body.Substring(colonSignIndex + 2, newLineIndex - colonSignIndex - 2) :
+                Body.Substring(colonSignIndex + 2, Body.Length - colonSignIndex - 2);
 
             if (type is bool)
                 return (T)(object)Convert.ToBoolean(value);
