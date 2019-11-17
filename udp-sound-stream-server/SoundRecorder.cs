@@ -63,6 +63,7 @@ namespace udp_sound_stream_server
             if (_soundIn.RecordingState == RecordingState.Recording)
             {
                 _soundIn?.Stop();
+                SoundCaptured = null;
             }
         }
     }
