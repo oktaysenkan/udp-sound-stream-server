@@ -1,54 +1,58 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace udp_sound_stream_server
 {
     class RequestHandler
     {
-        public string Request { get; }
-        public bool StartStream { get; }
-        public bool StopStream { get; }
-        public bool ChangeAudioQuality { get; }
-        public int BitPerSecond { get; }
-        public int SampleRate { get; }
+        private Request _request;
 
-        public RequestHandler(byte[] buffer)
+        public delegate void StreamStartedEventHandler(int sampleRate, int bitsPerSecond);
+        public event StreamStartedEventHandler StreamStarted;
+
+        public delegate void StreamStoppedEventHandler();
+        public event StreamStoppedEventHandler StreamStopped;
+
+        public delegate void AudioQualityChangedEventHandler(int sampleRate, int bitsPerSecond);
+        public event AudioQualityChangedEventHandler AudioQualityChanged;
+
+        public RequestHandler(Request request)
         {
-            Request = Encoding.UTF8.GetString(buffer);
-
-            StartStream = GetValueOfParameter("StartStream", StartStream);
-            StopStream = GetValueOfParameter("StopStream", StopStream);
-            ChangeAudioQuality = GetValueOfParameter("ChangeAudioQuality", ChangeAudioQuality);
-            BitPerSecond = GetValueOfParameter("BitPerSecond", BitPerSecond);
-            SampleRate = GetValueOfParameter("SampleRate", SampleRate);
+            _request = request;
         }
 
-        private T GetValueOfParameter<T>(string requestParamater, T type)
+        public void Start()
         {
-            var startIndex = Request.IndexOf(requestParamater, StringComparison.Ordinal);
-            if (startIndex < 0)
-                return default(T);
+            if (StreamStarted == null)
+                throw new Exception("StreamStartedEventHandler not implemented");
 
-            var colonSignIndex = startIndex + requestParamater.Length;
-            var newLineIndex = Request.IndexOf("\n", colonSignIndex, StringComparison.Ordinal);
-            var value = Request.Substring(colonSignIndex + 2, newLineIndex - colonSignIndex - 2);
+            if (StreamStopped == null)
+                throw new Exception("StreamStoppedEventHandler not implemented");
 
-            if (type is bool)
-                return (T)(object)Convert.ToBoolean(value);
+            if (AudioQualityChanged == null)
+                throw new Exception("AudioQualityChangedEventHandler not implemented");
 
-            if (type is string)
-                return (T)(object)value;
+            if (_request.StartStream)
+            {
+                if (_request.BitPerSecond != 0 && _request.SampleRate != 0)
+                    StreamStarted(_request.SampleRate, _request.BitPerSecond);
+                else
+                    StreamStarted(44100, 16);
+            }
+            else if (_request.StopStream)
+            {
+                StreamStopped();
+            }
+            else if (_request.ChangeAudioQuality)
+            {
+                if (_request.BitPerSecond == 0 && _request.SampleRate == 0)
+                    throw new Exception("Bit per second or sample rate must not be null or empty.");
 
-            if (type is int)
-                return (T)(object)Convert.ToInt32(value);
-
-            return default(T);
+                AudioQualityChanged(_request.SampleRate, _request.BitPerSecond);
+            }
         }
-
     }
 }
