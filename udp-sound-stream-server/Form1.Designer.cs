@@ -80,6 +80,7 @@
             this.Controls.Add(this.lblStatus);
             this.Name = "Form1";
             this.Text = "UDP Sound Stream Server";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.ResumeLayout(false);
             this.PerformLayout();
 

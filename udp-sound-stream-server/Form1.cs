@@ -30,5 +30,9 @@ namespace udp_sound_stream_server
             SoundStreamer soundStreamer = new SoundStreamer();
         }
 
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            (Process.GetCurrentProcess()).Kill();
+        }
     }
 }
