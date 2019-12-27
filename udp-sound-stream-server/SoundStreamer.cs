@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Windows.Forms;
 using System.Text;
 using System.Threading.Tasks;
 using CSCore;
@@ -15,11 +16,21 @@ namespace udp_sound_stream_server
         private SoundRecorder _soundRecorder;
         private IPEndPoint _serverEndPoint = new IPEndPoint(IPAddress.Any, 9050);
         private IPEndPoint _clientEndPoint;
+        public Form1 Context;
 
         public SoundStreamer()
         {
             _streamServer = new UdpClient(_serverEndPoint);
+        }
+
+        public void Start()
+        {
             _streamServer.BeginReceive(DataReceived, null);
+        }
+
+        public void Stop()
+        {
+            _streamServer.Close();
         }
 
         private void DataReceived(IAsyncResult ar)
@@ -49,6 +60,7 @@ namespace udp_sound_stream_server
                 _soundRecorder.SoundCaptured += SoundCaptured;
             }
 
+            Context.ChangeConnectionStatusLabel("Connected!");
             _soundRecorder.Start();
         }
 

@@ -23,16 +23,24 @@ namespace udp_sound_stream_server
         public Form1()
         {
             InitializeComponent();
+            CheckForIllegalCrossThreadCalls = false;
+            lblIPAdressValue.Text = string.Join("\n", IPAddressManager.GetLocalIPAddress()); ;
 
-            string ipAddresses = string.Join("\n", IPAddressManager.GetLocalIPAddress());
-            lblIPAdressValue.Text = ipAddresses;
-
-            SoundStreamer soundStreamer = new SoundStreamer();
+            SoundStreamer soundStreamer = new SoundStreamer
+            {
+                Context = this
+            };
+            soundStreamer.Start();
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
             (Process.GetCurrentProcess()).Kill();
+        }
+
+        public void ChangeConnectionStatusLabel(string text)
+        {
+            lblStatusValue.Text = text;
         }
     }
 }
