@@ -10,7 +10,7 @@ using CSCore;
 
 namespace udp_sound_stream_server
 {
-    class SoundStreamer
+    class SoundStreamer: IMessageRecievedEventBroadcaster
     {
         private UdpClient _streamServer;
         private SoundRecorder _soundRecorder;
@@ -18,21 +18,15 @@ namespace udp_sound_stream_server
         private IPEndPoint _clientEndPoint;
         public Form1 Context;
 
+        public event Action<IDictionary<string, string>> MessageRecievedEvent = delegate { };
+
         public SoundStreamer(Form1 context)
         {
             _streamServer = new UdpClient(_serverEndPoint);
             Context = context;
-        }
-
-        public void Start()
-        {
             _streamServer.BeginReceive(DataReceived, null);
         }
 
-        public void Stop()
-        {
-            _streamServer.Close();
-        }
 
         private void DataReceived(IAsyncResult ar)
         {
@@ -40,12 +34,9 @@ namespace udp_sound_stream_server
             _streamServer.BeginReceive(DataReceived, null);
 
             Request request = new Request(bufferReceive);
-            RequestHandler requestHandler = new RequestHandler(request);
-
-            requestHandler.StreamStarted += StreamStarted;
-            requestHandler.StreamStopped += StreamStopped;
-            requestHandler.AudioQualityChanged += AudioQualityChanged;
-            requestHandler.Start();
+            IRequestHandler controller = new StreamController(this);
+            controller.OnRequestRecieved(request);
+            MessageRecievedEvent(request.Parameters);
         }
 
         private void SoundCaptured(byte[] buffer, int bytes)
@@ -53,7 +44,7 @@ namespace udp_sound_stream_server
             _streamServer.Send(buffer, bytes, _clientEndPoint);
         }
 
-        private void StreamStarted(int sampleRate = 44100, int bitsPerSecond = 16)
+        public void StartStream(int sampleRate = 44100, int bitsPerSecond = 16)
         {
             if (_soundRecorder == null)
             {
@@ -65,16 +56,20 @@ namespace udp_sound_stream_server
             _soundRecorder.Start();
         }
 
-        private void StreamStopped()
+        public void StopStream()
         {
             Context.ChangeConnectionStatusLabel("Disconnected!");
             _soundRecorder?.Stop();
         }
 
-        private void AudioQualityChanged(int sampleRate, int bitsPerSecond)
+        public void ChangeAudioQuality(int sampleRate, int bitsPerSecond)
         {
             _soundRecorder.ChangeQuality(sampleRate, bitsPerSecond);
         }
+    }
 
+    public interface IMessageRecievedEventBroadcaster
+    {
+        event Action<IDictionary<string, string>> MessageRecievedEvent;
     }
 }

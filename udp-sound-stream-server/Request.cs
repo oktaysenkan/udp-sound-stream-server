@@ -1,5 +1,8 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Dynamic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -11,6 +14,7 @@ namespace udp_sound_stream_server
     class Request
     {
         public string Body { get; }
+        public IDictionary<string, string> Parameters { get; }
         public bool StartStream { get; }
         public bool StopStream { get; }
         public bool ChangeAudioQuality { get; }
@@ -20,43 +24,36 @@ namespace udp_sound_stream_server
         public Request(byte[] buffer)
         {
             Body = Encoding.UTF8.GetString(buffer);
+            Parameters = GetParameters(buffer);
 
-            StartStream = GetValueOfParameter("StartStream", StartStream);
-            StopStream = GetValueOfParameter("StopStream", StopStream);
-            ChangeAudioQuality = GetValueOfParameter("ChangeAudioQuality", ChangeAudioQuality);
-            BitPerSecond = GetValueOfParameter("BitPerSecond", BitPerSecond);
-            SampleRate = GetValueOfParameter("SampleRate", SampleRate);
+            if (Parameters.ContainsKey("StartStream"))
+                StartStream = Convert.ToBoolean(Parameters["StartStream"]);
+            if (Parameters.ContainsKey("StopStream"))
+                StopStream = Convert.ToBoolean(Parameters["StopStream"]);
+            if (Parameters.ContainsKey("ChangeAudioQuality"))
+                ChangeAudioQuality = Convert.ToBoolean(Parameters["ChangeAudioQuality"]);
+            if (Parameters.ContainsKey("BitPerSecond"))
+                BitPerSecond = Convert.ToInt32(Parameters["BitPerSecond"]);
+            if (Parameters.ContainsKey("SampleRate"))
+                SampleRate = Convert.ToInt32(Parameters["SampleRate"]);
         }
 
-        private T GetValueOfParameter<T>(string requestParamater, T type)
+        private IDictionary<string, string> GetParameters(byte[] buffer)
         {
-            var startIndex = Body.IndexOf(requestParamater, StringComparison.Ordinal);
-            if (startIndex < 0)
-                return default(T);
+            string[] parametersArray = Body.Split('\n');
+            Dictionary<string, string> requestParameters = new Dictionary<string, string>();
+            foreach (string line in parametersArray)
+            {
+                if (String.IsNullOrEmpty(line))
+                    continue;
 
-            var colonSignIndex = startIndex + requestParamater.Length;
-            var newLineIndex = Body.IndexOf("\n", colonSignIndex, StringComparison.Ordinal);
+                var colonIndex = line.IndexOf(":");
+                var parameterName = line.Substring(0, colonIndex);
+                var parameterValue = line.Substring(colonIndex + 2, line.Length - colonIndex - 2);
 
-            /*
-            * Eğer aranan parametreden sonra satır devam ediyorsa "\n" işaretine kadar,
-            * eğer yeni satır bulunmuyorsa request bodysinin sonuna kadar substring yapıyor.
-            */
-
-            var value = newLineIndex > 0 ?
-                Body.Substring(colonSignIndex + 2, newLineIndex - colonSignIndex - 2) :
-                Body.Substring(colonSignIndex + 2, Body.Length - colonSignIndex - 2);
-
-            if (type is bool)
-                return (T)(object)Convert.ToBoolean(value);
-
-            if (type is string)
-                return (T)(object)value;
-
-            if (type is int)
-                return (T)(object)Convert.ToInt32(value);
-
-            return default(T);
+                requestParameters[parameterName] = parameterValue;
+            }
+            return requestParameters;
         }
-
     }
 }

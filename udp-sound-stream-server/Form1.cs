@@ -10,10 +10,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using CSCore;
-using CSCore.Codecs.WAV;
-using CSCore.SoundIn;
-using CSCore.Streams;
+
 
 namespace udp_sound_stream_server
 {
@@ -23,11 +20,6 @@ namespace udp_sound_stream_server
         public Form1()
         {
             InitializeComponent();
-            CheckForIllegalCrossThreadCalls = false;
-            lblIPAdressValue.Text = string.Join("\n", IPAddressManager.GetLocalIPAddress()); ;
-
-            SoundStreamer soundStreamer = new SoundStreamer(this);
-            soundStreamer.Start();
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
@@ -38,6 +30,15 @@ namespace udp_sound_stream_server
         public void ChangeConnectionStatusLabel(string text)
         {
             lblStatusValue.Text = text;
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            CheckForIllegalCrossThreadCalls = false;
+            lblIPAdressValue.Text = string.Join("\n", IPAddressManager.GetLocalIPAddress()); ;
+            SoundStreamer soundStreamer = new SoundStreamer(this);
+            PluginLoader loader = new PluginLoader();
+            loader.Subscribe((IMessageRecievedEventBroadcaster)soundStreamer);
         }
     }
 }
