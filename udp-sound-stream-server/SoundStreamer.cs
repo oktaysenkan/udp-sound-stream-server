@@ -18,9 +18,10 @@ namespace udp_sound_stream_server
         private IPEndPoint _clientEndPoint;
         public Form1 Context;
 
-        public SoundStreamer()
+        public SoundStreamer(Form1 context)
         {
             _streamServer = new UdpClient(_serverEndPoint);
+            Context = context;
         }
 
         public void Start()
@@ -66,6 +67,7 @@ namespace udp_sound_stream_server
 
         private void StreamStopped()
         {
+            Context.ChangeConnectionStatusLabel("Disconnected!");
             _soundRecorder?.Stop();
         }
 

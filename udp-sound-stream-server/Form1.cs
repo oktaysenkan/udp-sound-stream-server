@@ -26,10 +26,7 @@ namespace udp_sound_stream_server
             CheckForIllegalCrossThreadCalls = false;
             lblIPAdressValue.Text = string.Join("\n", IPAddressManager.GetLocalIPAddress()); ;
 
-            SoundStreamer soundStreamer = new SoundStreamer
-            {
-                Context = this
-            };
+            SoundStreamer soundStreamer = new SoundStreamer(this);
             soundStreamer.Start();
         }
 
