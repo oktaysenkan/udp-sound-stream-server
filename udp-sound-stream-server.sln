@@ -1,9 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.168
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29609.76
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "udp-sound-stream-server", "udp-sound-stream-server\udp-sound-stream-server.csproj", "{929C42B1-4911-4EC4-A351-A4FCADC0C2F5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PluginBase", "PluginBase\PluginBase.csproj", "{F3CD116C-08F8-41DC-8049-BFE9632F5130}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemotePlugin", "RemotePlugin\RemotePlugin.csproj", "{B1F6EFCE-F76C-4191-98B8-C79BC04A456E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,14 @@ Global
 		{929C42B1-4911-4EC4-A351-A4FCADC0C2F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{929C42B1-4911-4EC4-A351-A4FCADC0C2F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{929C42B1-4911-4EC4-A351-A4FCADC0C2F5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F3CD116C-08F8-41DC-8049-BFE9632F5130}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F3CD116C-08F8-41DC-8049-BFE9632F5130}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F3CD116C-08F8-41DC-8049-BFE9632F5130}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F3CD116C-08F8-41DC-8049-BFE9632F5130}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B1F6EFCE-F76C-4191-98B8-C79BC04A456E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B1F6EFCE-F76C-4191-98B8-C79BC04A456E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B1F6EFCE-F76C-4191-98B8-C79BC04A456E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B1F6EFCE-F76C-4191-98B8-C79BC04A456E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
