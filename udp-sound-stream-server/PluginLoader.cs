@@ -39,9 +39,6 @@ namespace udp_sound_stream_server
             foreach (var assemblyName in assemblyFiles)
             {
                 var pluginAssembly = Assembly.LoadFile(assemblyName);
-
-                Debug.WriteLine($"Loaded {assemblyName}");
-
                 var existingTypes = pluginAssembly.GetTypes();
 
                 bool TypePredicate(Type child, Type parent) =>
@@ -51,8 +48,7 @@ namespace udp_sound_stream_server
                     existingTypes.Where(a => TypePredicate(a, typeof(IOnMessageReiceved))).ToList();
                 _onMessageRecievedListeners.AddRange(onMessageReicevedListenerTypes);
 
-                Debug.WriteLine($"Found the following PreCopy types from plugin {assemblyName}:");
-                Debug.WriteLine(string.Join("\n", onMessageReicevedListenerTypes.Select(a => a.Name).ToArray()));
+                Debug.WriteLine($"Loaded {assemblyName}");
             }
         }
 

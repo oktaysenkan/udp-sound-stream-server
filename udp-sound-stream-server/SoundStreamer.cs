@@ -27,7 +27,6 @@ namespace udp_sound_stream_server
             _streamServer.BeginReceive(DataReceived, null);
         }
 
-
         private void DataReceived(IAsyncResult ar)
         {
             var bufferReceive = _streamServer.EndReceive(ar, ref _clientEndPoint);
