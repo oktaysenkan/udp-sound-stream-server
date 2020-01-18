@@ -41,9 +41,13 @@ private void AudioStreamRecevied(IAsyncResult ar)
 ## Request Tipleri
 
 `StartStream`: `boolen` Ses kaydıyla birlikte ses akışını başlatır. 
+
 `StopStream`: `boolen` Ses kaydını ve ses akışını durdurur.
+
 `ChangeAudioQuality`: `boolen` Bununla birlikte `BitPerSecond` ve `SampleRate` kullanılmak zorundadır, stream edilen ses kalitesini değiştirir.
+
 `BitPerSecond`: `number` Saniyedeki bit sayısını belirtir.
+
 `SampleRate`: `number` Örnekleme oranını belirtir.
 
 #### Örnekler
