@@ -49,7 +49,9 @@ private void AudioStreamRecevied(IAsyncResult ar)
 #### Örnekler
 
 `StartStream: true\n`
+
 `StopStream: true\n`
+
 `ChangeAudioQuality: true\nBitPerSecond: 32\nSampleRate: 32000\n`
 
 **Not**: `StartStream` için varsayılan ses değerleri `BitPerSecond` 16, `SampleRate` 44100 olarak belirlenmiştir.
